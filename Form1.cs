@@ -79,7 +79,8 @@ namespace CReadKanManHua
                 ShowImage(pageList[page_progress.Value].FullName);
             }
             else
-                chapter_name_box.SelectedIndex += 1;
+                if(chapter_name_box.SelectedIndex != chapter_name_box.Items.Count - 1)
+                    chapter_name_box.SelectedIndex += 1;
         }
         private void prev_page_Click(object sender, EventArgs e)
         {
