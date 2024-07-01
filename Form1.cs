@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -56,15 +57,16 @@ namespace CReadKanManHua
         {
             chapter_name_box.Items.Clear();
             currentComic = comic_name_box.Text;
-            DirectoryInfo[] chapterPath = new DirectoryInfo(Path.Combine(allComicPath, currentComic)).GetDirectories().OrderBy(x=>x.CreationTime).ToArray();
+            DirectoryInfo[] chapterPath = new DirectoryInfo(Path.Combine(allComicPath, currentComic)).GetDirectories().OrderBy(x => x.CreationTime).ToArray();
             for (int i = 0; i < chapterPath.Length; i++)
                 chapter_name_box.Items.Add(chapterPath[i].Name);
         }
         private void chapter_name_box_SelectedIndexChanged(object sender, EventArgs e)
         {
-            pageList = new DirectoryInfo(Path.Combine(allComicPath, comic_name_box.Text, chapter_name_box.Text)).GetFiles().OrderBy(x=>x.CreationTime).ToArray();
+            pageList = new DirectoryInfo(Path.Combine(allComicPath, comic_name_box.Text, chapter_name_box.Text)).GetFiles();
+            Array.Sort(pageList, (x1, x2) => int.Parse(Regex.Match(x1.Name, @"\d+").Value).CompareTo(int.Parse(Regex.Match(x2.Name, @"\d+").Value)));
             ShowImage(pageList[0].FullName);
-            page_progress.Maximum = pageList.Length-1;
+            page_progress.Maximum = pageList.Length - 1;
             page_progress.Value = 0;
         }
         private void page_progress_Scroll(object sender, EventArgs e)
@@ -79,8 +81,8 @@ namespace CReadKanManHua
                 ShowImage(pageList[page_progress.Value].FullName);
             }
             else
-                if(chapter_name_box.SelectedIndex != chapter_name_box.Items.Count - 1)
-                    chapter_name_box.SelectedIndex += 1;
+                if (chapter_name_box.SelectedIndex != chapter_name_box.Items.Count - 1)
+                chapter_name_box.SelectedIndex += 1;
         }
         private void prev_page_Click(object sender, EventArgs e)
         {
@@ -91,19 +93,28 @@ namespace CReadKanManHua
             }
             else
                 if (chapter_name_box.SelectedIndex != 0)
+            {
                 chapter_name_box.SelectedIndex -= 1;
+                page_progress.Value = page_progress.Maximum;
+                ShowImage(pageList[page_progress.Value].FullName);
+            }
         }
 
         private void next_chapter_Click(object sender, EventArgs e)
         {
-            if(chapter_name_box.SelectedIndex!=chapter_name_box.Items.Count-1)
+            if (chapter_name_box.SelectedIndex != chapter_name_box.Items.Count - 1)
                 chapter_name_box.SelectedIndex += 1;
         }
 
         private void prev_chapter_Click(object sender, EventArgs e)
         {
-            if(chapter_name_box.SelectedIndex!=0)
+            if (chapter_name_box.SelectedIndex != 0)
                 chapter_name_box.SelectedIndex -= 1;
+        }
+
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
         }
     }
 }
